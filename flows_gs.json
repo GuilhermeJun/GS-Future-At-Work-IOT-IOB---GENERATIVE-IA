@@ -1,0 +1,155 @@
+[
+    {
+        "id": "c38f8121db91cefd",
+        "type": "tab",
+        "label": "GS2 IoT Oracle",
+        "disabled": false,
+        "info": "Flow para receber leituras IoT do ESP32 e gravar na tabela LEITURA_IOT"
+    },
+    {
+        "id": "22c7b762e4fd11aa",
+        "type": "http in",
+        "z": "c38f8121db91cefd",
+        "name": "API /api/leituras-iot",
+        "url": "/api/leituras-iot",
+        "method": "post",
+        "upload": false,
+        "swaggerDoc": "",
+        "x": 130,
+        "y": 80,
+        "wires": [
+            [
+                "37b4ff7b89466d3b"
+            ]
+        ]
+    },
+    {
+        "id": "37b4ff7b89466d3b",
+        "type": "json",
+        "z": "c38f8121db91cefd",
+        "name": "JSON -> objeto",
+        "property": "payload",
+        "action": "",
+        "pretty": false,
+        "x": 330,
+        "y": 80,
+        "wires": [
+            [
+                "1f0d6e1d9c8a4a9d"
+            ]
+        ]
+    },
+    {
+        "id": "1f0d6e1d9c8a4a9d",
+        "type": "function",
+        "z": "c38f8121db91cefd",
+        "name": "Normaliza payload",
+        "func": "const p = msg.payload || {};\n\n// guarda original para devolver na resposta\nmsg._originalPayload = p;\n\nmsg.payload = {\n  identificador_hw: String(p.identificador_hw || \"ESP32-ABC-001\"),\n  acc_x: Number(p.acc_x || 0),\n  acc_y: Number(p.acc_y || 0),\n  acc_z: Number(p.acc_z || 0),\n  gyro_x: Number(p.gyro_x || 0),\n  gyro_y: Number(p.gy_y || p.gyro_y || 0),\n  gyro_z: Number(p.gy_z || p.gyro_z || 0),\n  movimentado: Number(p.movimentado || 0),\n  choque: Number(p.choque || 0),\n  estado_ativo: String(p.estado_ativo || \"ATV\"),\n  observacao: String(p.observacao || \"Leitura IoT GS2\")\n};\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 550,
+        "y": 80,
+        "wires": [
+            [
+                "b06285754284e5aa",
+                "82a0331dce952e72"
+            ]
+        ]
+    },
+    {
+        "id": "82a0331dce952e72",
+        "type": "debug",
+        "z": "c38f8121db91cefd",
+        "name": "Debug payload normalizado",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 540,
+        "y": 140,
+        "wires": []
+    },
+    {
+        "id": "b06285754284e5aa",
+        "type": "oracledb",
+        "z": "c38f8121db91cefd",
+        "name": "INSERT leitura_iot",
+        "usequery": true,
+        "query": "INSERT INTO leitura_iot (\n  id_leitura,\n  dispositivo_id,\n  data_leitura,\n  acc_x, acc_y, acc_z,\n  gyro_x, gyro_y, gyro_z,\n  movimentado,\n  choque,\n  estado_ativo,\n  observacao\n)\nVALUES (\n  seq_leitura_iot.NEXTVAL,\n  (SELECT id_disp FROM dispositivo_iot WHERE identificador_hw = :identificador_hw),\n  SYSDATE,\n  :acc_x, :acc_y, :acc_z,\n  :gyro_x, :gyro_y, :gyro_z,\n  :movimentado, :choque,\n  :estado_ativo, :observacao\n)",
+        "usemappings": false,
+        "mappings": "",
+        "server": "",
+        "resultaction": "acknowledge",
+        "resultlimit": 1,
+        "x": 770,
+        "y": 80,
+        "wires": [
+            [
+                "bdd3356fba7116c2",
+                "e5a9e5ab3fa07d6f"
+            ]
+        ]
+    },
+    {
+        "id": "bdd3356fba7116c2",
+        "type": "function",
+        "z": "c38f8121db91cefd",
+        "name": "Monta resposta HTTP",
+        "func": "const recebido = msg._originalPayload || null;\n\nmsg.payload = {\n  status: \"ok\",\n  mensagem: \"Leitura IoT gravada no Oracle com sucesso\",\n  dadosRecebidos: recebido\n};\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1060,
+        "y": 80,
+        "wires": [
+            [
+                "4a7c1d3aa759ad21"
+            ]
+        ]
+    },
+    {
+        "id": "4a7c1d3aa759ad21",
+        "type": "http response",
+        "z": "c38f8121db91cefd",
+        "name": "",
+        "statusCode": "",
+        "headers": {},
+        "x": 1270,
+        "y": 80,
+        "wires": []
+    },
+    {
+        "id": "e5a9e5ab3fa07d6f",
+        "type": "debug",
+        "z": "c38f8121db91cefd",
+        "name": "Debug retorno Oracle",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 1100,
+        "y": 220,
+        "wires": []
+    },
+    {
+        "id": "b1364eada59b0246",
+        "type": "global-config",
+        "env": [],
+        "modules": {
+            "node-red-contrib-oracledb-mod": "0.7.6"
+        }
+    }
+]
