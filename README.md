@@ -5,6 +5,13 @@ O objetivo é capturar leituras de um “sensor” (simulado), enviá-las via HT
 
 ---
 
+## Descrição do Projeto – Sistema Inteligente de Inventário e Rastreamento IoT de Ativos de TI
+
+O projeto propõe o desenvolvimento de um Sistema Inteligente de Inventário, Empréstimos e Rastreamento IoT de Ativos de TI, com automação baseada em dispositivos ESP32, integração via MQTT e um banco de dados Oracle completo para controle operacional e histórico.
+O objetivo é modernizar a gestão de ativos corporativos — como notebooks, headsets, tablets e dispositivos móveis — oferecendo rastreabilidade em tempo real, automação de processos, segurança, redução de perdas e melhoria direta na experiência dos colaboradores.
+
+---
+
 ## 1. Visão geral da arquitetura
 
 1. **ESP32**
