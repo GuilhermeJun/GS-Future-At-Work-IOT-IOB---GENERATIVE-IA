@@ -1,4 +1,4 @@
-# GS2 – Integração IoT com ESP32, Node-RED e Oracle
+# Global Solution – Integração IoT com ESP32, Node-RED e Oracle
 
 Projeto da Global Solution (2TDS) que integra um dispositivo **ESP32** com um backend em **Node-RED** e um banco de dados **Oracle XE**.  
 O objetivo é capturar leituras de um “sensor” (simulado), enviá-las via HTTP para o Node-RED e gravar os dados na tabela `LEITURA_IOT` no banco.
